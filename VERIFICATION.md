@@ -48,3 +48,9 @@ The project includes a readable README with startup instructions, architecture, 
 - Full-condition matching remains strict: unsupported trailing conditions are rejected.
 - **52 tests pass**, including the exact reported wording, quoted and alternate word order, a/b patterns, accepted and rejected inputs, and DFA/NFA/conversion equivalence.
 - Production build succeeds. The exact prompt generates seven-state DFA and NFA models in the browser, with no parser error.
+
+## Input guidance — 8 October 2026
+
+- Added always-visible supported-rule guidance, a replaceable substring example, count examples and an explicit a/b alphabet example beneath the input. Linked the field to its helper text with aria-describedby.
+- Production build succeeds. Custom substring, exact-count, parity and a/b examples generate successfully in the browser.
+- Guidance visually checked at 375 and 1440 pixels, without horizontal page overflow. Saved a screenshot and refreshed the project ZIP.

@@ -41,6 +41,8 @@ The core modules are plain JavaScript with no React imports. The graph, table an
 
 ## Supported grammar
 
+Always-visible guidance below the language field lists the supported rule types, explains how to replace a substring with your own pattern, and gives count and a/b alphabet examples. The field is linked to this guidance for assistive technology.
+
 One supported condition per description. Common `Strings`, `Binary strings`, `with`, and `that` prefixes are stripped. Quotes, capitalization and a trailing full stop are normalized. The remaining condition must match in full, preventing accidental partial interpretation of combined conditions.
 
 | Pattern | Examples |
