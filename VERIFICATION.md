@@ -41,3 +41,10 @@ The project includes a readable README with startup instructions, architecture, 
 - Production build succeeds. All six NFA examples pass accepted/rejected browser checks, including ∅ rejection for a failed prefix and excess counts.
 - Browser conversion and minimization preserve acceptance. No observed console errors or warnings.
 - NFA layout checked at 375, 768 and 1440 pixels without horizontal page overflow. The selector, destination sets and simultaneous state/edge highlights were visually verified.
+
+## Custom substring phrasing — 8 October 2026
+
+- Fixed the reported `contains 101010 as a substring` error by recognizing an optional substring/pattern suffix in contains and forbidden rules.
+- Full-condition matching remains strict: unsupported trailing conditions are rejected.
+- **52 tests pass**, including the exact reported wording, quoted and alternate word order, a/b patterns, accepted and rejected inputs, and DFA/NFA/conversion equivalence.
+- Production build succeeds. The exact prompt generates seven-state DFA and NFA models in the browser, with no parser error.

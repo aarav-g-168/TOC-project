@@ -33,6 +33,18 @@ for(const [prompt,oracle] of cases)test(`recognition and minimization: ${prompt}
  assert.ok(minimized.states.length<=dfa.states.length);
 });
 test('all faculty examples parse',()=>examples.forEach(p=>assert.equal(machine(p).type,'DFA')));
+test('substring wording in either order recognizes custom patterns without ignoring clauses',()=>{
+ for(const prompt of ['contains 101010 as a substring','contains substring 101010','Strings that contain "101010" as a substring.','contains 101010 as substring']) {
+  const c=parseConstraint(prompt);assert.equal(c.pattern,'101010');assert.equal(c.kind,'contains');
+  const n=generateNFA(c),d=generateDFA(c),converted=determinizeNFA(n);
+  for(const s of strings(['0','1'],9))for(const a of [n,d,converted])assert.equal(simulate(a,s).accepted,s.includes('101010'));
+ }
+ const forbidden=parseConstraint('does not contain 101010 as a substring');assert.equal(forbidden.kind,'forbidden');
+ assert.equal(simulate(generateDFA(forbidden),'101010').accepted,false);
+ assert.equal(simulate(generateDFA(forbidden),'0000').accepted,true);
+ const ab=parseConstraint('Strings over {a,b} containing aba as a substring');assert.equal(simulate(generateNFA(ab),'baba').accepted,true);
+ for(const prompt of ['contains 101010 as a substring and ends with 1','contains 101010 as a substring or 00','does not contain 00 as a substring except at the start'])assert.throws(()=>parseConstraint(prompt));
+});
 test('all binary patterns up to length four, including overlapping prefixes',()=>{
  for(const pattern of strings(['0','1'],4).filter(Boolean)) for(const kind of ['contains','starts','ends','forbidden']) {
   const dfa=generateDFA({kind,pattern,alphabet:['0','1']});

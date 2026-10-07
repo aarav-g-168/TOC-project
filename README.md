@@ -45,7 +45,7 @@ One supported condition per description. Common `Strings`, `Binary strings`, `wi
 
 | Pattern | Examples |
 | --- | --- |
-| Contains | `Binary strings containing 101`, `contains substring 110` |
+| Contains | `Binary strings containing 101`, `contains substring 110`, `contains 101010 as a substring` |
 | Starts | `Strings starting with 10`, `begins with 1` |
 | Ends | `Strings ending with 01`, `ends with 101` |
 | Symbol parity | `even number of 1s`, `odd number of 0s` |

@@ -14,13 +14,13 @@ export function parseConstraint(input) {
   if (/\bbinary\b/.test(text)) { if (alphabet && alphabet.join('') !== '01') throw new Error('Binary strings require alphabet {0, 1}.'); alphabet = ['0', '1']; }
   text = text.replace(/^(?:binary\s+)?strings?\s*/, '').replace(/^(?:that\s+)?/, '').replace(/^with\s+/, '').replace(/\s+over\s*$/, '').trim();
   let c, m;
-  if ((m = text.match(/^(?:contains?|containing)\s+(?:the\s+)?(?:substring\s+|pattern\s+)?([01ab]+)$/))) c = { kind: 'contains', pattern: m[1] };
+  if ((m = text.match(/^(?:contains?|containing)\s+(?:the\s+)?(?:substring\s+|pattern\s+)?([01ab]+)(?:\s+as\s+(?:a\s+)?(?:substring|pattern))?$/))) c = { kind: 'contains', pattern: m[1] };
   else if ((m = text.match(/^(?:starts?|starting|begins?|beginning)\s+with\s+([01ab]+)$/))) c = { kind: 'starts', pattern: m[1] };
   else if ((m = text.match(/^(?:ends?|ending)\s+with\s+([01ab]+)$/))) c = { kind: 'ends', pattern: m[1] };
   else if ((m = text.match(/^(?:an?\s+)?(even|odd)\s+(?:number|count)\s+of\s+([01ab])s?$/))) c = { kind: 'parity', parity: m[1], symbol: m[2] };
   else if ((m = text.match(/^(?:containing\s+|contains?\s+)?exactly\s+(\d+|zero|one|two|three|four|five|six|seven|eight|nine|ten)\s+([01ab])s?$/))) c = { kind: 'exact', count: words[m[1]] ?? Number(m[1]), symbol: m[2] };
   else if ((m = text.match(/^no\s+consecutive\s+([01ab])s?$/))) c = { kind: 'forbidden', pattern: m[1].repeat(2) };
-  else if ((m = text.match(/^(?:does?\s+not\s+contain|not\s+containing|without)\s+(?:substring\s+|pattern\s+)?([01ab]+)$/))) c = { kind: 'forbidden', pattern: m[1] };
+  else if ((m = text.match(/^(?:does?\s+not\s+contain|not\s+containing|without)\s+(?:substring\s+|pattern\s+)?([01ab]+)(?:\s+as\s+(?:a\s+)?(?:substring|pattern))?$/))) c = { kind: 'forbidden', pattern: m[1] };
   else if ((m = text.match(/^(even|odd)\s+length$/))) c = { kind: 'length', parity: m[1] };
   else throw new Error(/^(?:with\s+)?[01ab]$/.test(text) ? 'This description is ambiguous. Specify contains, starts with, ends with, or exactly one.' : fail);
   const symbols = c.pattern || c.symbol || '';
