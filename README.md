@@ -30,7 +30,7 @@ npm run preview
 | File | Responsibility |
 | --- | --- |
 | `src/core/parser.js` | Full-condition regular-expression grammar; formal constraint extraction and validation |
-| `src/core/automata.js` | DFA generation, simulation and partition-refinement minimization |
+| `src/core/automata.js` | DFA/NFA generation, set-based simulation, subset conversion and partition-refinement minimization |
 | `src/Graph.jsx` | React Flow state nodes, labelled transitions, active path and layout |
 | `src/App.jsx` | One-page input, understanding, explanations, table and simulation controls |
 | `src/styles.css` | Tailwind import, responsive dark theme and graph styling |
@@ -65,7 +65,13 @@ Binary alphabet `{0,1}` is the default. Patterns involving `a` or `b` infer `{a,
 
 **Exact count:** States track counts from zero to the requested count, plus an overflow rejecting sink. Non-target symbols preserve the count.
 
-**Simulation:** Validate all symbols, begin in the start state, and follow the transition function once per character. Record every source, symbol and destination. Acceptance is membership of the final state in the accepting set. The empty input is ε and uses the start state's acceptance. Play advances every 650 ms; Pause, Next and Reset change the displayed position in the same recorded trace. The graph highlights the current state and the most recently traversed transition. The tape identifies the next symbol to read. Clicking Simulate begins playback; the result appears when the input finishes.
+**Simulation (DFA):** Validate all symbols, begin in the start state, and follow the transition function once per character. Record every source, symbol and destination. Acceptance is membership of the final state in the accepting set. The empty input is ε and uses the start state's acceptance. Play advances every 650 ms; Pause, Next and Reset change the displayed position in the same recorded trace. The graph highlights the current state and the most recently traversed transition. The tape identifies the next symbol to read. Clicking Simulate begins playback; the result appears when the input finishes.
+
+**NFA construction:** Select NFA beside Create above the language input. Contains and ends use a scanning state with loops on the alphabet plus a second transition on the first target symbol into a matching chain. This is genuine branching: `contains 101` has `q0 --1--> {q0,q1}`. Contains keeps a successful branch accepting; ends accepts only if a matching branch finishes at the end of the input. Starts uses a chain with missing mismatch transitions instead of a rejecting sink. Exact counts omit the overflow sink and use an empty destination set for excess occurrences. Parity, length and forbidden-pattern constraints naturally use single-destination transitions, which are still valid NFAs; the UI explains this.
+
+**NFA simulation:** Track the entire set of active states, take the union of their destinations on each symbol and apply epsilon closure before input and after each step. Accept if any final active state is accepting. Missing transitions are `[]` in the data and shown as ∅ in the table. A dead branch disappears while other branches continue. All active nodes and traversed edges are highlighted together. The generated pattern NFAs require no epsilon transitions, but the simulator and converter support them and epsilon cycles are tested.
+
+**NFA to DFA:** Click Convert to DFA. Reachable subset construction creates one DFA state for each reachable set of NFA states, including the empty set if reachable. It preserves the recognized language. Select a converted state to read its NFA membership, then click Minimize DFA. The conversion is capped at 256 states to avoid an exponential graph overwhelming the MVP.
 
 **Minimization:** Remove unreachable states, partition reachable states by acceptance, then repeatedly split each group by its vector of destination-group indices over the alphabet. When no further split is possible, build the quotient DFA with one state per group. The UI computes actual original, minimized and reduced counts and shows group membership. Many generated machines are already minimal: a reduction of zero is correct, including the containing-101 faculty example. The tests include a six-state fixture where equivalent reachable states merge to three and an unreachable state disappears. No artificial states are added to make the demo numbers more dramatic.
 
@@ -81,10 +87,14 @@ Binary alphabet `{0,1}` is the default. Patterns involving `a` or `b` infer `{a,
 8. Try **Even 1s** with `1100` (accepted) and `1` (rejected); **Ends with 01** with `1101` and `011`; **Exactly two 1s** with `1010` and `111`; **No consecutive 1s** with `10101` and `110`.
 9. Try `I like football` or `Strings with 1` to show honest unsupported/ambiguous-input handling. Use Pattern guide for a/b and length examples.
 
+## NFA faculty demonstration
+
+Select **NFA** above the input and generate **Binary strings containing 101**. Point out that the transition on `1` from q0 has two destinations, q0 and q1. Simulate `110101`, pause, and step through the active-state sets. On the first `1`, both q0 and q1 are active. The final set contains q3, so the input is accepted. Test `0000` to reject. Click **Convert to DFA**, inspect its subset states, then **Minimize DFA**. For a branch that dies completely, try **Strings starting with 10** and test `00`: the final active set is ∅.
+
 ## Verification and limits
 
 The automated tests compare recognition to independent string predicates on every string up to length eight for 19 descriptions, repeat recognition after minimization, verify transition destinations, verify the exact faculty trace, and check invalid input, ε, parser errors, actual merging and unreachable-state removal. Overlap-sensitive targets are tested too.
 
-The project intentionally generates **DFAs only**. There is no NFA conversion, full regex engine, arbitrary NLP, conjunction/disjunction of constraints, data persistence or export UI. Patterns and exact counts are capped at 12 to keep graphs useful; test strings are capped at 200. Graph layout uses a simple five-column grid with draggable nodes, zoom, pan, fit view and reset. Large graphs may require zooming or manual adjustment. Animations are educational playback, not a server task.
+The project generates **DFAs and NFAs** for the supported grammar, with NFA-to-DFA conversion. There is no full regex engine, arbitrary NLP, conjunction/disjunction of constraints, hand-drawn automaton editor, data persistence or export UI. Patterns and exact counts are capped at 12 to keep graphs useful; test strings are capped at 200. Graph layout uses a simple five-column grid with draggable nodes, zoom, pan, fit view and reset. Large graphs may require zooming or manual adjustment. Animations are educational playback, not a server task.
 
 Implementation references: [React Flow custom edges](https://reactflow.dev/learn/customization/custom-edges) and [Tailwind with Vite](https://tailwindcss.com/docs/installation/using-vite).

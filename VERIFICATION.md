@@ -1,4 +1,6 @@
-# Verification — 7 October 2026
+# Verification log
+
+## Initial MVP — 7 October 2026
 
 - **26 automated tests pass** using `npm test`.
 - Every string up to length eight checked against independent predicates for 19 descriptions; both original and minimized machines agree.
@@ -27,3 +29,15 @@ The project includes a readable README with startup instructions, architecture, 
 - Updated production UI verified at 375, 768, 1024 and 1440 pixels, with no horizontal page overflow. Desktop and phone layouts visually inspected.
 - Simulation Pause/Next, the accepting faculty trace, state selection, guide disclosure, minimization and Show original checked in the browser.
 - Updated preview has no observed console warnings or errors. Replaced the delivered screenshot and rebuilt the project ZIP.
+
+## NFA support — 8 October 2026
+
+- Added a visible DFA/NFA selector that generates the selected model for the current description.
+- Genuine branching construction for contains and ends; prefix and exact-count NFAs use missing transitions to drop failed branches. Parity, length and forbidden constraints use valid single-destination NFAs, with an honest explanation.
+- Transition table displays destination sets and ∅. Graph and simulation track every active state and traversed edge; acceptance requires at least one accepting final branch.
+- Added epsilon closure with cycle handling and reachable subset conversion, including the empty-set DFA sink.
+- Direct NFA minimization is guarded. Conversion enables standard DFA minimization; contains-101 converts to 6 DFA states and minimizes to 4.
+- **51 automated tests pass**. For 19 descriptions, the NFA, converted DFA and minimized DFA match independent predicates on all inputs up to length eight. Overlapping binary patterns up to length four are also checked across all strings up to length seven. Epsilon cycles, dead branches, empty input, type guards, invalid symbols and the 256-state conversion bound are tested.
+- Production build succeeds. All six NFA examples pass accepted/rejected browser checks, including ∅ rejection for a failed prefix and excess counts.
+- Browser conversion and minimization preserve acceptance. No observed console errors or warnings.
+- NFA layout checked at 375, 768 and 1440 pixels without horizontal page overflow. The selector, destination sets and simultaneous state/edge highlights were visually verified.

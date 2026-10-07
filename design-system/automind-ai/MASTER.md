@@ -16,6 +16,7 @@ Informed by the UI UX Pro Max local search for `developer tool minimal dark`: **
 - Minimum 44 pixel main controls, 48 pixel inputs, larger example chips on touch layouts.
 - Visible form labels, skip link, guide disclosure state, decorative icons hidden from screen readers, visible focus and reduced-motion support.
 - Retain graph plus explanation desktop layout, with a single column on phones and automatic graph fitting.
+- The DFA/NFA choice is a neutral segmented control beside a concise mode explanation. NFA active-state sets use the same muted simulation colors; no new decorative styling.
 
 ## Main tokens
 

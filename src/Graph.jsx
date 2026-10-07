@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect, useRef } from 'react';
+import { transitionTargets } from './core/automata.js';
 import { ReactFlow, Background, Controls, Handle, Position, BaseEdge, EdgeLabelRenderer, MarkerType, useNodesState, useReactFlow, ReactFlowProvider } from '@xyflow/react';
 function StateNode({ data }) {
   return <div className={`state-node ${data.accepting ? 'accepting' : ''} ${data.current ? 'current' : ''} ${data.selected ? 'chosen' : ''}`}>
@@ -37,15 +38,18 @@ function Canvas({ dfa, selected, onSelect, current, active, layoutKey }) {
   const initial = useMemo(() => dfa.states.map((s,i) => ({id:s.id, type:'state', position:{x:80+(i%5)*190, y:150+Math.floor(i/5)*300}, data:{id:s.id}})), [dfa, layoutKey]);
   const [nodes, setNodes, onNodesChange] = useNodesState(initial);
   useEffect(() => { setNodes(initial); const timer = setTimeout(() => flow.fitView({ padding:.24, maxZoom:1.1 }), 80); return () => clearTimeout(timer); }, [initial, setNodes, flow]);
-  const displayNodes = nodes.map(n => ({...n, data:{...n.data, start:n.id===dfa.start, accepting:dfa.accepting.includes(n.id), selected:n.id===selected, current:n.id===current}}));
+  const displayNodes = nodes.map(n => ({...n, data:{...n.data, start:n.id===dfa.start, accepting:dfa.accepting.includes(n.id), selected:n.id===selected, current:current?.includes(n.id)}}));
   const edges = useMemo(() => {
     const grouped = new Map();
-    for (const s of dfa.states) for (const symbol of dfa.alphabet) {
-      const target = dfa.transitions[s.id][symbol], key = `${s.id}-${target}`;
+    for (const s of dfa.states) for (const symbol of [...dfa.alphabet, 'ε']) for (const target of transitionTargets(dfa, s.id, symbol)) {
+      const key = `${s.id}-${target}`;
       if (!grouped.has(key)) grouped.set(key, {source:s.id, target, symbols:[]});
       grouped.get(key).symbols.push(symbol);
     }
-    return [...grouped.entries()].map(([id, e]) => ({ id, source:e.source, target:e.target, type:'transition', markerEnd:{type:MarkerType.ArrowClosed, color: active?.from===e.source && active?.state===e.target ? 'var(--graph-active)' : 'var(--graph-edge)'}, data:{label:e.symbols.join(', '), reverse:Number(e.source.slice(1))>Number(e.target.slice(1)), active:active?.from===e.source && active?.state===e.target && e.symbols.includes(active?.symbol)}}));
+    return [...grouped.entries()].map(([id, e]) => {
+      const isActive = active?.moves?.some(m => m.from === e.source && m.to === e.target && e.symbols.includes(m.symbol));
+      return { id, source:e.source, target:e.target, type:'transition', markerEnd:{type:MarkerType.ArrowClosed, color: isActive ? 'var(--graph-active)' : 'var(--graph-edge)'}, data:{label:e.symbols.join(', '), reverse:Number(e.source.slice(1))>Number(e.target.slice(1)), active:isActive} };
+    });
   }, [dfa, active]);
   return <div ref={container} style={{width:'100%',height:'100%'}}><ReactFlow nodes={displayNodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes} onNodesChange={onNodesChange} onNodeClick={(_,n)=>onSelect(n.id)} nodesConnectable={false} fitView minZoom={.2} maxZoom={2}><Background color="var(--graph-grid)" gap={28} size={1}/><Controls showInteractive={false}/></ReactFlow></div>;
 }
